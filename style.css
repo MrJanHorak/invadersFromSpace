@@ -1,0 +1,23 @@
+#game-grid {
+  border-collapse: collapse;
+  margin: 20px auto;
+}
+
+.cell {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #000;
+  background-color: transparent;
+}
+
+.player {
+  background-color: #00f; /* Blue color for the player's ship */
+}
+
+.alien {
+  background-color: #f00; /* Red color for aliens */
+}
+
+.bullet {
+  background-color: #0f0; /* Green color for bullets */
+}
