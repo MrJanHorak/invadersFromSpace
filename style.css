@@ -4,20 +4,29 @@
 }
 
 .cell {
-  width: 40px;
-  height: 40px;
+  width: 2.3vw;
+  height: 2.3vw;
   border: 1px solid #000;
   background-color: transparent;
 }
 
 .player {
-  background-color: #00f; /* Blue color for the player's ship */
+  background-image: url(/assets/images/baseshipa.ico); 
+  background-repeat: no-repeat;
+  background-size: 2.3vw 2.3vw;
 }
 
 .alien {
-  background-color: #f00; /* Red color for aliens */
+  background-image: url(/assets/images/saucer1a.ico);
+  background-repeat: no-repeat; 
+  background-size: 2.3vw 2.3vw;
 }
 
 .bullet {
   background-color: #0f0; /* Green color for bullets */
+}
+
+body{
+  background-color: #010101;
+  color: rgb(254, 254, 254);
 }

@@ -6,16 +6,17 @@ const alienCell = document.querySelector('#alien');
 const gameGrid = document.querySelector('#game-grid');
 
 // variables
-const numRows = 10;
+const numRows = 15;
 const numColumns = 30;
+const numAliens = 11;
 let playerPosition = { row: numRows - 1, col: Math.floor(numColumns / 2) };
-let playerPositionX = Math.floor(numColumns / 2); // Example initial position
-let playerPositionY = numRows - 1; // Example initial position
-let isShooting = false;
+let playerPositionX = Math.floor(numColumns / 2);
+let playerPositionY = numRows - 1;
 let score = 0;
 let lives = 3;
 let aliens = [];
 let bullets = [];
+let isShooting = false;
 
 // create game grid:
 for (let i = 0; i < numRows; i++) {
@@ -23,7 +24,7 @@ for (let i = 0; i < numRows; i++) {
   for (let j = 0; j < numColumns; j++) {
     const cell = document.createElement('td');
     cell.className = 'cell';
-    cell.id = `${i}-${j}`; // Example: 0-0, 0-1, 0-2, etc.
+    cell.id = `${i}-${j}`;
     row.appendChild(cell);
   }
   gameGrid.appendChild(row);
@@ -31,35 +32,34 @@ for (let i = 0; i < numRows; i++) {
 
 // functions
 function createAliens() {
-  console.log('creating aliens');
-  for (let i = 0; i < numColumns - 2; i = i + 2) {
-    aliens.push({
-      x: i,
-      y: 0,
-      alive: true,
-      direction: 'right',
-    });
+  for (let j = 0; j <= 5; j++) {
+    for (let i = 0; i <= numAliens * 2; i = i + 2) {
+      aliens.push({
+        x: i,
+        y: j,
+        alive: true,
+        direction: 'right',
+      });
+    }
   }
 }
 
-function updateAliens() {
-  console.log('updating aliens');
-  aliens.forEach((alien) => {
-    if (alien.alive) {
-      gameGrid.rows[alien.y].cells[alien.x].classList.add('alien');
-    }
-  });
-}
+// function updateAliens() {
+//   aliens.forEach((alien) => {
+//     if (alien.alive) {
+//       gameGrid.rows[alien.y].cells[alien.x].classList.add('alien');
+//     }
+//   });
+// }
 
-function updateBullets() {
-  console.log('updating bullets');
-  bullets.forEach((bullet) => {
-    gameGrid.rows[bullet.y].cells[bullet.x].classList.add('bullet');
-  });
-}
+// function updateBullets() {
+//   console.log('updating bullets');
+//   bullets.forEach((bullet) => {
+//     gameGrid.rows[bullet.y].cells[bullet.x].classList.add('bullet');
+//   });
+// }
 
 function moveAliens() {
-  console.log('moving aliens');
   if (aliens.some((alien) => alien.y === numRows - 1)) {
     gameOver();
   } else if (
@@ -108,80 +108,75 @@ function moveAliens() {
         gameGrid.rows[alien.y].cells[alien.x].classList.add('alien');
       }
     });
-  } 
+  }
 }
 
 function moveBullets() {
   console.log('moving bullets');
-  bullets.forEach((bullet) => {
+  console.log(bullets);
+  bullets.forEach((bullet, index) => {
+    console.log('moving bullet: ' + bullet);
+    if (bullet.alive === false) {
+      console.log('removing bullet');
+      bullets.splice(index, 1);
+      return;
+    }
     const cell = gameGrid.rows[bullet.y].cells[bullet.x];
     cell.classList.remove('bullet');
-    bullet.y -= 1;
-  });
-}
-function checkCollisions() {
-  console.log('checking collisions');
-  aliens.forEach((alien) => {
-    bullets.forEach((bullet) => {
-      if (alien.x === bullet.x && alien.y === bullet.y) {
-        alien.alive = false;
-        bullet.alive = false;
-        score += 1;
-      }
-    });
+    if (bullet.y > 0) {
+      bullet.y -= 1;
+      cell.classList.add('bullet');
+    } else {
+      bullet.alive = false;
+    }
   });
 }
 
+function checkCollisions() {
+  console.log('checking collisions');
+  for (let i = bullets.length - 1; i >= 0; i--) {
+    const bullet = bullets[i];
+    for (let j = aliens.length - 1; j >= 0; j--) {
+      const alien = aliens[j];
+      if (alien.alive && bullet.alive) {
+        if (alien.x === bullet.x && alien.y === bullet.y) {
+          alien.alive = false;
+          bullet.alive = false;
+          score += 1;
+          break;
+        }
+      }
+    }
+  }
+}
+
 function updateScore() {
-  console.log('updating score: ' + score);
   scoreBoard.innerText = score.toString();
 }
 
 function updateLives() {
-  console.log('updating lives: ' + lives);
   livesCounter.innerText = lives.toString();
 }
 
 function gameOver() {
-  console.log('game over');
   clearInterval(gameInterval);
   alert('Game Over');
 }
 
 function checkGameOver() {
-  console.log('checking game over');
   aliens.forEach((alien) => {
     if (alien.y === numRows) {
       gameOver();
+      aliens = [];
+      bullets = [];
     }
   });
-}
-
-function updateGame() {
-  console.log('updating game');
-  moveAliens();
-  moveBullets();
-  checkCollisions();
-  updateScore();
-  updateLives();
-  checkGameOver();
-  updateAliens();
-  updateBullets();
-}
-
-function startGame() {
-  console.log('starting game');
-  createAliens();
-  updateAliens();
-  updatePlayerPosition();
-  gameInterval = setInterval(updateGame, 1000);
 }
 
 // event listeners
 document.querySelector('#start').addEventListener('click', startGame);
 
 document.addEventListener('keydown', (event) => {
-  console.log(event.key);
   if (event.key === 'ArrowLeft' && playerPositionX > 0) {
     playerPositionX--;
   } else if (
@@ -194,29 +189,25 @@ document.addEventListener('keydown', (event) => {
     shootBullet(playerPositionX);
   } else if (event.key === 'ArrowUp' && playerPositionY > 0) {
     playerPositionY--;
-    console.log('up');
   } else if (
     event.key === 'ArrowDown' &&
     playerPositionY < gameGrid.rows.length - 1
   ) {
     playerPositionY++;
-    console.log('down');
   }
 
   updatePlayerPosition();
 });
 
 function updatePlayerPosition() {
-  console.log('updating player position');
-  console.log(playerPositionX + ' ' + playerPositionY + ' ' + playerPosition);
-  const cells = gameGrid.rows[playerPositionY].cells;
-  for (let i = 0; i < cells.length; i++) {
-    console.log('removing player class from cell ' + i);
-    cells[i].classList.remove('player');
+  const gridRows = gameGrid.rows;
+  for (let i = 0; i < gridRows.length; i++) {
+    let gridCells = gridRows[i].cells;
+    for (let j = 0; j < gridCells.length; j++) {
+      gridCells[j].classList.remove('player');
+    }
   }
-
-  console.log('adding player class to cell ' + playerPositionX);
-  cells[playerPositionX].classList.add('player');
+  gameGrid.rows[playerPositionY].cells[playerPositionX].classList.add('player');
 }
 
 function shootBullet(position) {
@@ -247,4 +238,26 @@ function shootBullet(position) {
       newCell.classList.add('bullet');
     }
   }, 30);
+}
+
+function updateGame() {
+  moveAliens();
+  checkCollisions();
+  moveBullets();
+  updateScore();
+  updateLives();
+  checkGameOver();
+  // updateAliens();
+  // updateBullets();
+}
+
+function startGame() {
+  score = 0;
+  lives = 3;
+  aliens = [];
+  bullets = [];
+  createAliens();
+  // updateAliens();
+  updatePlayerPosition();
+  gameInterval = setInterval(updateGame, 1000);
 }
