@@ -9,6 +9,10 @@ const gameGrid = document.querySelector('#game-grid');
 const numRows = 15;
 const numColumns = 30;
 const numAliens = 11;
+const alienMovementSound = new Audio('../assets/sounds/fastinvader4.wav');
+const shootBulletSound = new Audio('../assets/sounds/shoot.wav');
+const alienDeathSound = new Audio('../assets/sounds/invaderkilled.wav');
+
 let playerPosition = { row: numRows - 1, col: Math.floor(numColumns / 2) };
 let playerPositionX = Math.floor(numColumns / 2);
 let playerPositionY = numRows - 1;
@@ -44,21 +48,6 @@ function createAliens() {
   }
 }
 
-// function updateAliens() {
-//   aliens.forEach((alien) => {
-//     if (alien.alive) {
-//       gameGrid.rows[alien.y].cells[alien.x].classList.add('alien');
-//     }
-//   });
-// }
-
-// function updateBullets() {
-//   console.log('updating bullets');
-//   bullets.forEach((bullet) => {
-//     gameGrid.rows[bullet.y].cells[bullet.x].classList.add('bullet');
-//   });
-// }
-
 function moveAliens() {
   if (aliens.some((alien) => alien.y === numRows - 1)) {
     gameOver();
@@ -73,6 +62,7 @@ function moveAliens() {
         alien.y += 1;
         alien.direction = 'left';
         gameGrid.rows[alien.y].cells[alien.x].classList.add('alien');
+        alienMovementSound.play();
       }
     });
   } else if (
@@ -84,6 +74,7 @@ function moveAliens() {
         alien.y += 1;
         alien.direction = 'right';
         gameGrid.rows[alien.y].cells[alien.x].classList.add('alien');
+        alienMovementSound.play();
       }
     });
   } else if (
@@ -96,6 +87,7 @@ function moveAliens() {
         gameGrid.rows[alien.y].cells[alien.x].classList.remove('alien');
         alien.x += 1;
         gameGrid.rows[alien.y].cells[alien.x].classList.add('alien');
+        alienMovementSound.play();
       }
     });
   } else if (
@@ -106,6 +98,7 @@ function moveAliens() {
         gameGrid.rows[alien.y].cells[alien.x].classList.remove('alien');
         alien.x -= 1;
         gameGrid.rows[alien.y].cells[alien.x].classList.add('alien');
+        alienMovementSound.play();
       }
     });
   }
@@ -133,7 +126,6 @@ function moveBullets() {
 }
 
 function checkCollisions() {
-  console.log('checking collisions');
   for (let i = bullets.length - 1; i >= 0; i--) {
     const bullet = bullets[i];
     for (let j = aliens.length - 1; j >= 0; j--) {
@@ -142,14 +134,16 @@ function checkCollisions() {
         if (alien.x === bullet.x && alien.y === bullet.y) {
           alien.alive = false;
           bullet.alive = false;
+          gameGrid.rows[alien.y].cells[alien.x].classList.remove('alien');
+          gameGrid.rows[bullet.y].cells[bullet.x].classList.remove('bullet');
           score += 1;
-          break;
+          alienDeathSound.play();
+          aliens.splice(j, 1);
         }
       }
     }
   }
 }
-
 function updateScore() {
   scoreBoard.innerText = score.toString();
 }
@@ -212,6 +206,7 @@ function updatePlayerPosition() {
 
 function shootBullet(position) {
   console.log('shooting bullet', position);
+  shootBulletSound.play();
   if (isShooting) return;
 
   const bullet = { x: position, y: playerPositionY - 1, alive: true };
@@ -242,13 +237,11 @@ function shootBullet(position) {
 
 function updateGame() {
   moveAliens();
-  checkCollisions();
   moveBullets();
+  checkCollisions();
   updateScore();
   updateLives();
   checkGameOver();
-  // updateAliens();
-  // updateBullets();
 }
 
 function startGame() {
@@ -257,7 +250,6 @@ function startGame() {
   aliens = [];
   bullets = [];
   createAliens();
-  // updateAliens();
   updatePlayerPosition();
   gameInterval = setInterval(updateGame, 1000);
 }
