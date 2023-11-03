@@ -5,7 +5,7 @@ const livesCounter = document.querySelector('#lives');
 const player = document.querySelector('#player');
 const alienCell = document.querySelector('#alien');
 const gameGrid = document.querySelector('#game-grid');
-const startButton = document.querySelector('#start-button');
+const startButton = document.querySelector('#start');
 
 // variables
 const numRows = 15;
@@ -24,6 +24,32 @@ let lives = 3;
 let aliens = [];
 let bullets = [];
 let isShooting = false;
+
+
+// event listeners
+startButton.addEventListener('click', startGame);
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'ArrowLeft' && playerPositionX > 0) {
+    playerPositionX--;
+  } else if (
+    event.key === 'ArrowRight' &&
+    playerPositionX < gameGrid.rows[playerPositionY].cells.length - 1
+  ) {
+    playerPositionX++;
+  } else if (event.key === ' ' && !isShooting) {
+    shootBullet(playerPositionX);
+  } else if (event.key === 'ArrowUp' && playerPositionY > 0) {
+    playerPositionY--;
+  } else if (
+    event.key === 'ArrowDown' &&
+    playerPositionY < gameGrid.rows.length - 1
+  ) {
+    playerPositionY++;
+  }
+
+  updatePlayerPosition();
+});
 
 // create game grid:
 for (let i = 0; i < numRows; i++) {
@@ -58,7 +84,9 @@ function sleep(ms) {
 async function moveAliens() {
   if (aliens.some((alien) => alien.y === numRows - 1)) {
     clearInterval(gameInterval); // Game over when aliens reach the bottom
-    alert('Game Over');
+      // startButton.style.opacity = 1;
+      // startButton.innerText = 'Game over! \nPlay Again?';
+      gameOver();
     return;
   }
 
@@ -165,9 +193,7 @@ function checkCollisions() {
   }
 }
 
-function updateHiScore() {
-  hiScoreBoard.innerText = hiScore.toString();
-}
+
 
 function getHiScore() {
   const storedHiScore = localStorage.getItem('hiScore');
@@ -196,7 +222,8 @@ function updateLives() {
 
 function gameOver() {
   clearInterval(gameInterval);
-  alert('Game Over');
+  startButton.style.opacity = 1;
+  startButton.innerText = 'Game over! \nPlay Again?';
 }
 
 function checkGameOver() {
@@ -257,7 +284,8 @@ function shootBullet(position) {
 function checkWin() {
   if (!aliens.some((alien) => alien.alive)) {
     clearInterval(gameInterval); // Stop the game loop
-    alert('Congratulations, You Win!');
+    startButton.style.opacity = 1;
+    startButton.innerText = 'You Win! \nPlay Again?';
   }
 }
 
@@ -273,31 +301,6 @@ function clearAliens() {
   aliens = [];
 }
 
-// event listeners
-document.querySelector('#start').addEventListener('click', startGame);
-
-document.addEventListener('keydown', (event) => {
-  if (event.key === 'ArrowLeft' && playerPositionX > 0) {
-    playerPositionX--;
-  } else if (
-    event.key === 'ArrowRight' &&
-    playerPositionX < gameGrid.rows[playerPositionY].cells.length - 1
-  ) {
-    playerPositionX++;
-  } else if (event.key === ' ' && !isShooting) {
-    shootBullet(playerPositionX);
-  } else if (event.key === 'ArrowUp' && playerPositionY > 0) {
-    playerPositionY--;
-  } else if (
-    event.key === 'ArrowDown' &&
-    playerPositionY < gameGrid.rows.length - 1
-  ) {
-    playerPositionY++;
-  }
-
-  updatePlayerPosition();
-});
-
 async function updateGame() {
   await moveAliens();
   await sleep(50);
@@ -311,13 +314,14 @@ async function updateGame() {
 }
 
 function startGame() {
+  startButton.style.opacity = 0;
   score = 0;
   lives = 3;
   clearAliens(); // Add this line to clear aliens from the previous game
   bullets = [];
   createAliens();
   updatePlayerPosition();
-  gameInterval = setInterval(updateGame, 1000);
+  gameInterval = setInterval(updateGame, 100);
 }
 
 getHiScore();

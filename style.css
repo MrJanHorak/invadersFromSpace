@@ -1,6 +1,7 @@
 body {
   background-color: #010101;
   color: rgb(254, 254, 254);
+  font-family: 'Press Start 2P', cursive;
 }
 
 .cell {
@@ -31,11 +32,16 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(10, 138, 57, 0.6);
+  background-color: rgba(53, 52, 52, 0.4);
   border: #560916 5px solid;
   padding: 8px;
-  width: 120px;
-  border-radius: 12px;
+  width: 200px;
+  border-color: #394d39 2 solid;
+  border-style: ridge solid;
+}
+
+.hidden {
+  opacity: 1;
 }
 
 #myVideo {
@@ -55,17 +61,19 @@ body {
 #start {
   background-color:rgba(175, 34, 34, 0.4);
   border: none;
-  color: white;
+  color: rgb(255, 255, 0);
   padding: 9px 34px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
   font-size: 26px;
-  border-radius: 12px;
-  border-color: #1b211b 2 solid;
+  border-color: #394d39 2 solid;
+  border-style: ridge solid;
+  animation: pulse 3s infinite;
 }
 #start:hover {
   background-color: rgba(34, 175, 36, 0.4);
+
 }
 
 #info-container {
@@ -75,13 +83,22 @@ body {
 }
 
 #start-container {
-  margin-top: 3vh;
   display: flex;
   justify-content: space-evenly;
+  z-index: 20;
+  position: absolute;
+  width: 98%;
+  top: 48%;
 }
 
-
-.hidden {
-  opacity: 1;
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
-
