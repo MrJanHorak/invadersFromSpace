@@ -4,11 +4,20 @@
     <link rel="stylesheet" type="text/css" href="style.css" />
   </head>
   <body>
-    <div>SCORE:<span id="score"></span></div>
-    <div>LIVES:<span id="lives"></span></div>
-    <table id="game-grid">
-    </table>
-    <div id='start'>start</div>
+    <video autoplay muted loop id="myVideo">
+      <source
+        src="/assets/Free Motion Graphics, Slow space stars loop background.mp4"
+        type="video/mp4"
+      />
+    </video>
+    <div id="info-container">
+      <div class="info-container">SCORE: <span id="score"></span></div>
+      <div class="info-container">LIVES: <span id="lives"></span></div>
+    </div>
+    <table id="game-grid"></table>
+    <div id="start-container">
+      <div id="start">START</div>
+    </div>
     <script src="script.js"></script>
   </body>
 </html>

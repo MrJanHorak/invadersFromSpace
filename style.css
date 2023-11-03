@@ -1,6 +1,6 @@
-#game-grid {
-  border-collapse: collapse;
-  margin: 20px auto;
+body {
+  background-color: #010101;
+  color: rgb(254, 254, 254);
 }
 
 .cell {
@@ -11,22 +11,71 @@
 }
 
 .player {
-  background-image: url(/assets/images/baseshipa.ico); 
+  background-image: url(/assets/images/baseshipa.ico);
   background-repeat: no-repeat;
   background-size: 2.3vw 2.3vw;
 }
 
 .alien {
   background-image: url(/assets/images/saucer1a.ico);
-  background-repeat: no-repeat; 
+  background-repeat: no-repeat;
   background-size: 2.3vw 2.3vw;
 }
 
 .bullet {
-  background-color: #0f0;   /* Green color for bullets */
+  background-image: url(/assets/images/bullet.ico);
+  background-size: 2.3vw 2.3vw;
+  background-repeat: no-repeat;
 }
 
-body{
-  background-color: #010101;
-  color: rgb(254, 254, 254);
+#myVideo {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  min-width: 100%;
+  min-height: 100%;
+  z-index: -10;
+}
+
+#game-grid {
+  border-collapse: collapse;
+  margin: 20px auto;
+}
+
+#start {
+  background-color: #560916;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 26px;
+  border-radius: 12px;
+  border-color: #1b211b 2 solid;
+}
+#start:hover {
+  background-color: #1b8f1b;
+}
+
+#info-container {
+  margin-top: 3%;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+#start-container {
+  margin-top: 3%;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.info-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #1b8f1b;
+  border: #560916 5px solid;
+  padding: 8px;
+  width: 85px;
 }

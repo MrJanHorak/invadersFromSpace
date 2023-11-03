@@ -48,69 +48,69 @@ function createAliens() {
   }
 }
 
-function moveAliens() {
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function moveAliens() {
   if (aliens.some((alien) => alien.y === numRows - 1)) {
-    gameOver();
-  } else if (
-    aliens.some(
+    clearInterval(gameInterval); // Game over when aliens reach the bottom
+    alert('Game Over');
+    return;
+  }
+
+  const aliensToMove = aliens.filter((alien) => alien.alive); // Only move alive aliens
+
+  // Clear all aliens first
+  aliensToMove.forEach((alien) => {
+    const cell = gameGrid.rows[alien.y].cells[alien.x];
+    if (cell) {
+      cell.classList.remove('alien');
+    }
+  });
+
+  if (
+    aliensToMove.some(
       (alien) => alien.x === numColumns - 1 && alien.direction === 'right'
     )
   ) {
-    aliens.forEach((alien) => {
-      if (alien.alive) {
-        gameGrid.rows[alien.y].cells[alien.x].classList.remove('alien');
-        alien.y += 1;
-        alien.direction = 'left';
-        gameGrid.rows[alien.y].cells[alien.x].classList.add('alien');
-        alienMovementSound.play();
-      }
+    aliensToMove.forEach((alien) => {
+      alien.y += 1;
+      alien.direction = 'left';
+      alienMovementSound.play();
     });
   } else if (
-    aliens.some((alien) => alien.x === 0 && alien.direction === 'left')
+    aliensToMove.some((alien) => alien.x === 0 && alien.direction === 'left')
   ) {
-    aliens.forEach((alien) => {
-      if (alien.alive) {
-        gameGrid.rows[alien.y].cells[alien.x].classList.remove('alien');
-        alien.y += 1;
-        alien.direction = 'right';
-        gameGrid.rows[alien.y].cells[alien.x].classList.add('alien');
-        alienMovementSound.play();
-      }
-    });
-  } else if (
-    aliens.some(
-      (alien) => alien.x < numColumns - 1 && alien.direction === 'right'
-    )
-  ) {
-    aliens.forEach((alien) => {
-      if (alien.alive) {
-        gameGrid.rows[alien.y].cells[alien.x].classList.remove('alien');
-        alien.x += 1;
-        gameGrid.rows[alien.y].cells[alien.x].classList.add('alien');
-        alienMovementSound.play();
-      }
-    });
-  } else if (
-    aliens.some((alien) => alien.x > 0 && alien.direction === 'left')
-  ) {
-    aliens.forEach((alien) => {
-      if (alien.alive) {
-        gameGrid.rows[alien.y].cells[alien.x].classList.remove('alien');
-        alien.x -= 1;
-        gameGrid.rows[alien.y].cells[alien.x].classList.add('alien');
-        alienMovementSound.play();
-      }
+    aliensToMove.forEach((alien) => {
+      alien.y += 1;
+      alien.direction = 'right';
+      alienMovementSound.play();
     });
   }
+
+  // Move all aliens (left or right) once
+  aliensToMove.forEach((alien) => {
+    if (alien.direction === 'right') {
+      alien.x += 1;
+    } else {
+      alien.x -= 1;
+    }
+    alienMovementSound.play();
+  });
+
+  // Update the positions of live aliens
+  aliensToMove.forEach((alien) => {
+    const cell = gameGrid.rows[alien.y].cells[alien.x];
+    if (cell) {
+      cell.classList.add('alien');
+    }
+  });
 }
 
 function moveBullets() {
-  console.log('moving bullets');
-  console.log(bullets);
   bullets.forEach((bullet, index) => {
-    console.log('moving bullet: ' + bullet);
     if (bullet.alive === false) {
-      console.log('removing bullet');
       bullets.splice(index, 1);
       return;
     }
@@ -123,6 +123,7 @@ function moveBullets() {
       bullet.alive = false;
     }
   });
+  checkCollisions();
 }
 
 function checkCollisions() {
@@ -134,16 +135,32 @@ function checkCollisions() {
         if (alien.x === bullet.x && alien.y === bullet.y) {
           alien.alive = false;
           bullet.alive = false;
-          gameGrid.rows[alien.y].cells[alien.x].classList.remove('alien');
-          gameGrid.rows[bullet.y].cells[bullet.x].classList.remove('bullet');
-          score += 1;
+
+          // Remove the classes and green color when a collision occurs
+          const alienCell = gameGrid.rows[alien.y].cells[alien.x];
+          if (alienCell.classList.contains('alien')) {
+            alienCell.classList.remove('alien');
+          }
+
+          const bulletCell = gameGrid.rows[bullet.y].cells[bullet.x];
+          if (bulletCell.classList.contains('bullet')) {
+            bulletCell.classList.remove('bullet');
+          }
+
+          score += 10;
+          updateScore(score);
           alienDeathSound.play();
-          aliens.splice(j, 1);
         }
       }
     }
+
+    // Remove the bullet here for any missed collisions
+    if (!bullet.alive) {
+      bullets.splice(i, 1);
+    }
   }
 }
+
 function updateScore() {
   scoreBoard.innerText = score.toString();
 }
@@ -179,7 +196,6 @@ document.addEventListener('keydown', (event) => {
   ) {
     playerPositionX++;
   } else if (event.key === ' ' && !isShooting) {
-    console.log('pew pew');
     shootBullet(playerPositionX);
   } else if (event.key === 'ArrowUp' && playerPositionY > 0) {
     playerPositionY--;
@@ -205,14 +221,11 @@ function updatePlayerPosition() {
 }
 
 function shootBullet(position) {
-  console.log('shooting bullet', position);
   shootBulletSound.play();
   if (isShooting) return;
 
   const bullet = { x: position, y: playerPositionY - 1, alive: true };
   bullets.push(bullet);
-
-  isShooting = true;
 
   const bulletInterval = setInterval(() => {
     if (!bullet.alive) {
@@ -221,33 +234,61 @@ function shootBullet(position) {
       return;
     }
 
+    // Get the cell based on the bullet's current position
     const cell = gameGrid.rows[bullet.y].cells[bullet.x];
-    cell.classList.remove('bullet');
 
-    bullet.y -= 1;
-
-    if (bullet.y < 0) {
-      bullet.alive = false;
-    } else {
-      const newCell = gameGrid.rows[bullet.y].cells[bullet.x];
-      newCell.classList.add('bullet');
+    // Check if the cell exists and contains the "bullet" class
+    if (cell && cell.classList.contains('bullet')) {
+      cell.classList.remove('bullet');
     }
-  }, 30);
+
+    bullet.y -= 1; // Move the bullet up
+
+    // Check if the bullet is still alive (it might have been destroyed while moving)
+    if (bullet.alive) {
+      const newCell = gameGrid.rows[bullet.y].cells[bullet.x];
+      if (newCell) {
+        newCell.classList.add('bullet');
+      }
+    }
+  }, 50);
 }
 
-function updateGame() {
-  moveAliens();
+function checkWin() {
+  if (!aliens.some((alien) => alien.alive)) {
+    clearInterval(gameInterval); // Stop the game loop
+    alert('Congratulations, You Win!');
+  }
+}
+
+function clearAliens() {
+  aliens.forEach((alien) => {
+    if (alien.alive) {
+      const cell = gameGrid.rows[alien.y].cells[alien.x];
+      if (cell.classList.contains('alien')) {
+        cell.classList.remove('alien');
+      }
+    }
+  });
+  aliens = [];
+}
+
+async function updateGame() {
+  await moveAliens();
+  await sleep(50);
+  checkCollisions();
   moveBullets();
   checkCollisions();
   updateScore();
   updateLives();
   checkGameOver();
+  checkWin(); // Add this line to check for the win condition
 }
 
 function startGame() {
   score = 0;
   lives = 3;
-  aliens = [];
+  clearAliens(); // Add this line to clear aliens from the previous game
   bullets = [];
   createAliens();
   updatePlayerPosition();
