@@ -184,31 +184,6 @@ function checkGameOver() {
   });
 }
 
-// event listeners
-document.querySelector('#start').addEventListener('click', startGame);
-
-document.addEventListener('keydown', (event) => {
-  if (event.key === 'ArrowLeft' && playerPositionX > 0) {
-    playerPositionX--;
-  } else if (
-    event.key === 'ArrowRight' &&
-    playerPositionX < gameGrid.rows[playerPositionY].cells.length - 1
-  ) {
-    playerPositionX++;
-  } else if (event.key === ' ' && !isShooting) {
-    shootBullet(playerPositionX);
-  } else if (event.key === 'ArrowUp' && playerPositionY > 0) {
-    playerPositionY--;
-  } else if (
-    event.key === 'ArrowDown' &&
-    playerPositionY < gameGrid.rows.length - 1
-  ) {
-    playerPositionY++;
-  }
-
-  updatePlayerPosition();
-});
-
 function updatePlayerPosition() {
   const gridRows = gameGrid.rows;
   for (let i = 0; i < gridRows.length; i++) {
@@ -272,6 +247,31 @@ function clearAliens() {
   });
   aliens = [];
 }
+
+// event listeners
+document.querySelector('#start').addEventListener('click', startGame);
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'ArrowLeft' && playerPositionX > 0) {
+    playerPositionX--;
+  } else if (
+    event.key === 'ArrowRight' &&
+    playerPositionX < gameGrid.rows[playerPositionY].cells.length - 1
+  ) {
+    playerPositionX++;
+  } else if (event.key === ' ' && !isShooting) {
+    shootBullet(playerPositionX);
+  } else if (event.key === 'ArrowUp' && playerPositionY > 0) {
+    playerPositionY--;
+  } else if (
+    event.key === 'ArrowDown' &&
+    playerPositionY < gameGrid.rows.length - 1
+  ) {
+    playerPositionY++;
+  }
+
+  updatePlayerPosition();
+});
 
 async function updateGame() {
   await moveAliens();

@@ -6,7 +6,6 @@ body {
 .cell {
   width: 2.3vw;
   height: 2.3vw;
-  border: 1px solid #000;
   background-color: transparent;
 }
 
@@ -28,6 +27,16 @@ body {
   background-repeat: no-repeat;
 }
 
+.info-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(10, 138, 57, 0.6);
+  border: #560916 5px solid;
+  padding: 8px;
+  width: 85px;
+}
+
 #myVideo {
   position: fixed;
   right: 0;
@@ -43,10 +52,10 @@ body {
 }
 
 #start {
-  background-color: #560916;
+  background-color:rgba(175, 34, 34, 0.4);
   border: none;
   color: white;
-  padding: 15px 32px;
+  padding: 9px 34px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
@@ -55,27 +64,18 @@ body {
   border-color: #1b211b 2 solid;
 }
 #start:hover {
-  background-color: #1b8f1b;
+  background-color: rgba(34, 175, 36, 0.4);
 }
 
 #info-container {
-  margin-top: 3%;
+  margin-top: 3vh;
   display: flex;
   justify-content: space-evenly;
 }
 
 #start-container {
-  margin-top: 3%;
+  margin-top: 3vh;
   display: flex;
   justify-content: space-evenly;
 }
 
-.info-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #1b8f1b;
-  border: #560916 5px solid;
-  padding: 8px;
-  width: 85px;
-}
