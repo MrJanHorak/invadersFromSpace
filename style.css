@@ -34,7 +34,7 @@ body {
   background-color: rgba(10, 138, 57, 0.6);
   border: #560916 5px solid;
   padding: 8px;
-  width: 85px;
+  width: 120px;
   border-radius: 12px;
 }
 
@@ -78,5 +78,10 @@ body {
   margin-top: 3vh;
   display: flex;
   justify-content: space-evenly;
+}
+
+
+.hidden {
+  opacity: 1;
 }
 

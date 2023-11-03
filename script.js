@@ -1,9 +1,11 @@
 // event listeners
 const scoreBoard = document.querySelector('#score');
+const hiScoreBoard = document.querySelector('#hi-score');
 const livesCounter = document.querySelector('#lives');
 const player = document.querySelector('#player');
 const alienCell = document.querySelector('#alien');
 const gameGrid = document.querySelector('#game-grid');
+const startButton = document.querySelector('#start-button');
 
 // variables
 const numRows = 15;
@@ -17,6 +19,7 @@ let playerPosition = { row: numRows - 1, col: Math.floor(numColumns / 2) };
 let playerPositionX = Math.floor(numColumns / 2);
 let playerPositionY = numRows - 1;
 let score = 0;
+let hiScore = 0;
 let lives = 3;
 let aliens = [];
 let bullets = [];
@@ -87,18 +90,19 @@ async function moveAliens() {
       alien.direction = 'right';
       alienMovementSound.play();
     });
+  } else if (
+    aliensToMove.some((alien) => alien.x !== 0 && alien.x !== numColumns - 1)
+  ) {
+    // Move all aliens (left or right) once
+    aliensToMove.forEach((alien) => {
+      if (alien.direction === 'right') {
+        alien.x += 1;
+      } else {
+        alien.x -= 1;
+      }
+      alienMovementSound.play();
+    });
   }
-
-  // Move all aliens (left or right) once
-  aliensToMove.forEach((alien) => {
-    if (alien.direction === 'right') {
-      alien.x += 1;
-    } else {
-      alien.x -= 1;
-    }
-    alienMovementSound.play();
-  });
-
   // Update the positions of live aliens
   aliensToMove.forEach((alien) => {
     const cell = gameGrid.rows[alien.y].cells[alien.x];
@@ -161,8 +165,29 @@ function checkCollisions() {
   }
 }
 
+function updateHiScore() {
+  hiScoreBoard.innerText = hiScore.toString();
+}
+
+function getHiScore() {
+  const storedHiScore = localStorage.getItem('hiScore');
+  hiScore = storedHiScore ? parseInt(storedHiScore) : 0;
+  updateHiScore(); // Update the displayed high score
+}
+
 function updateScore() {
   scoreBoard.innerText = score.toString();
+
+  // Check if the current score surpasses the high score
+  if (score > hiScore) {
+    hiScore = score;
+    updateHiScore(); // Update the displayed high score
+    localStorage.setItem('hiScore', hiScore); // Store the high score in local storage
+  }
+}
+
+function updateHiScore() {
+  hiScoreBoard.innerText = hiScore.toString();
 }
 
 function updateLives() {
@@ -294,3 +319,5 @@ function startGame() {
   updatePlayerPosition();
   gameInterval = setInterval(updateGame, 1000);
 }
+
+getHiScore();
