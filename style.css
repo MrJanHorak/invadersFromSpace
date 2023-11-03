@@ -35,6 +35,7 @@ body {
   border: #560916 5px solid;
   padding: 8px;
   width: 85px;
+  border-radius: 12px;
 }
 
 #myVideo {
