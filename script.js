@@ -20,11 +20,11 @@ let playerPositionX = Math.floor(numColumns / 2);
 let playerPositionY = numRows - 1;
 let score = 0;
 let hiScore = 0;
+const scoreMultiplier = [15,14,13,12,11,10,9,8,7,6,5,4,3,2,1]
 let lives = 3;
 let aliens = [];
 let bullets = [];
 let isShooting = false;
-
 
 // event listeners
 startButton.addEventListener('click', startGame);
@@ -84,9 +84,13 @@ function sleep(ms) {
 async function moveAliens() {
   if (aliens.some((alien) => alien.y === numRows - 1)) {
     clearInterval(gameInterval); // Game over when aliens reach the bottom
-      // startButton.style.opacity = 1;
-      // startButton.innerText = 'Game over! \nPlay Again?';
-      gameOver();
+    gameOver();
+    return;
+  }
+
+  if (aliens.every((alien) => alien.alive === false)) {
+    clearInterval(gameInterval); // Game over when aliens reach the bottom
+    gameWon();
     return;
   }
 
@@ -179,7 +183,7 @@ function checkCollisions() {
             bulletCell.classList.remove('bullet');
           }
 
-          score += 10;
+          score += 10*scoreMultiplier[alien.y];
           updateScore(score);
           alienDeathSound.play();
         }
@@ -192,8 +196,6 @@ function checkCollisions() {
     }
   }
 }
-
-
 
 function getHiScore() {
   const storedHiScore = localStorage.getItem('hiScore');
@@ -224,6 +226,12 @@ function gameOver() {
   clearInterval(gameInterval);
   startButton.style.opacity = 1;
   startButton.innerText = 'Game over! \nPlay Again?';
+}
+function gameWon() {
+  clearInterval(gameInterval);
+  startButton.style.opacity = 1;
+  startButton.style.backgroundColor = 'blue';
+  startButton.innerText = 'You won! \nPlay Again?';
 }
 
 function checkGameOver() {
@@ -278,13 +286,13 @@ function shootBullet(position) {
         newCell.classList.add('bullet');
       }
     }
-  }, 50);
+  }, 200);
 }
 
 function checkWin() {
   if (!aliens.some((alien) => alien.alive)) {
     clearInterval(gameInterval); // Stop the game loop
-    startButton.style.opacity = 1;
+    startButton.style.opacity = .8;
     startButton.innerText = 'You Win! \nPlay Again?';
   }
 }
@@ -303,7 +311,7 @@ function clearAliens() {
 
 async function updateGame() {
   await moveAliens();
-  await sleep(50);
+  // await sleep(50);
   checkCollisions();
   moveBullets();
   checkCollisions();
@@ -321,7 +329,7 @@ function startGame() {
   bullets = [];
   createAliens();
   updatePlayerPosition();
-  gameInterval = setInterval(updateGame, 100);
+  gameInterval = setInterval(updateGame, 800);
 }
 
 getHiScore();
