@@ -14,17 +14,19 @@ const numAliens = 11;
 const alienMovementSound = new Audio('../assets/sounds/fastinvader4.wav');
 const shootBulletSound = new Audio('../assets/sounds/shoot.wav');
 const alienDeathSound = new Audio('../assets/sounds/invaderkilled.wav');
+const scoreMultiplier = [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
 
 let playerPosition = { row: numRows - 1, col: Math.floor(numColumns / 2) };
 let playerPositionX = Math.floor(numColumns / 2);
 let playerPositionY = numRows - 1;
 let score = 0;
 let hiScore = 0;
-const scoreMultiplier = [15,14,13,12,11,10,9,8,7,6,5,4,3,2,1]
 let lives = 3;
 let aliens = [];
 let bullets = [];
 let isShooting = false;
+let levelInterval = 800;
+let level = 1;
 
 // event listeners
 startButton.addEventListener('click', startGame);
@@ -183,7 +185,7 @@ function checkCollisions() {
             bulletCell.classList.remove('bullet');
           }
 
-          score += 10*scoreMultiplier[alien.y];
+          score += 10 * scoreMultiplier[alien.y];
           updateScore(score);
           alienDeathSound.play();
         }
@@ -224,14 +226,18 @@ function updateLives() {
 
 function gameOver() {
   clearInterval(gameInterval);
+  levelInterval = 800;
+  level = 1;
   startButton.style.opacity = 1;
   startButton.innerText = 'Game over! \nPlay Again?';
 }
+
 function gameWon() {
   clearInterval(gameInterval);
-  startButton.style.opacity = 1;
+  levelUp();
+  startButton.style.opacity = 0.8;
   startButton.style.backgroundColor = 'blue';
-  startButton.innerText = 'You won! \nPlay Again?';
+  startButton.innerText = `Get Ready for level ${level}!`;
 }
 
 function checkGameOver() {
@@ -240,6 +246,8 @@ function checkGameOver() {
       gameOver();
       aliens = [];
       bullets = [];
+      score = 0;
+      lives = 3;
     }
   });
 }
@@ -289,11 +297,15 @@ function shootBullet(position) {
   }, 200);
 }
 
+function levelUp() {
+  level++;
+  levelInterval -= 50;
+  startGame();
+}
+
 function checkWin() {
-  if (!aliens.some((alien) => alien.alive)) {
-    clearInterval(gameInterval); // Stop the game loop
-    startButton.style.opacity = .8;
-    startButton.innerText = 'You Win! \nPlay Again?';
+  if (aliens.every((alien) => alien.alive === false)) {
+    gameWon();
   }
 }
 
@@ -323,13 +335,11 @@ async function updateGame() {
 
 function startGame() {
   startButton.style.opacity = 0;
-  score = 0;
-  lives = 3;
   clearAliens(); // Add this line to clear aliens from the previous game
   bullets = [];
   createAliens();
   updatePlayerPosition();
-  gameInterval = setInterval(updateGame, 800);
+  gameInterval = setInterval(updateGame, levelInterval);
 }
 
 getHiScore();
