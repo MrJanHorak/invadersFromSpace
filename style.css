@@ -22,6 +22,12 @@ body {
   background-size: 2.3vw 2.3vw;
 }
 
+.saucer {
+  background-image: url(/assets/images/mysterya.ico);
+  background-repeat: no-repeat;
+  background-size: 2.3vw 2.3vw;
+}
+
 .bullet {
   background-image: url(/assets/images/bullet.ico);
   background-size: 2.3vw 2.3vw;
@@ -35,7 +41,7 @@ body {
   background-color: rgba(53, 52, 52, 0.4);
   border: #560916 5px solid;
   padding: 8px;
-  width: 250px;
+  width: 290px;
   border-color: #394d39 2 solid;
   border-style: ridge solid;
 }

@@ -2,6 +2,7 @@
 const scoreBoard = document.querySelector('#score');
 const hiScoreBoard = document.querySelector('#hi-score');
 const livesCounter = document.querySelector('#lives');
+const levelCounter = document.querySelector('#level');
 const player = document.querySelector('#player');
 const alienCell = document.querySelector('#alien');
 const gameGrid = document.querySelector('#game-grid');
@@ -14,6 +15,8 @@ const numAliens = 11;
 const alienMovementSound = new Audio('../assets/sounds/fastinvader4.wav');
 const shootBulletSound = new Audio('../assets/sounds/shoot.wav');
 const alienDeathSound = new Audio('../assets/sounds/invaderkilled.wav');
+const saucerDeathSound = new Audio('../assets/sounds/explosion.wav');
+const saucerMovementSound = new Audio('../assets/sounds/ufo_lowpitch.wav');
 const scoreMultiplier = [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
 
 let playerPosition = { row: numRows - 1, col: Math.floor(numColumns / 2) };
@@ -27,6 +30,7 @@ let bullets = [];
 let isShooting = false;
 let levelInterval = 800;
 let level = 1;
+let saucer = null;
 
 // event listeners
 startButton.addEventListener('click', startGame);
@@ -199,10 +203,14 @@ function checkCollisions() {
   }
 }
 
+function updateHiScore() {
+  hiScoreBoard.innerText = hiScore.toString();
+}
+
 function getHiScore() {
   const storedHiScore = localStorage.getItem('hiScore');
   hiScore = storedHiScore ? parseInt(storedHiScore) : 0;
-  updateHiScore(); // Update the displayed high score
+  updateHiScore();
 }
 
 function updateScore() {
@@ -211,17 +219,17 @@ function updateScore() {
   // Check if the current score surpasses the high score
   if (score > hiScore) {
     hiScore = score;
-    updateHiScore(); // Update the displayed high score
-    localStorage.setItem('hiScore', hiScore); // Store the high score in local storage
+    updateHiScore();
+    localStorage.setItem('hiScore', hiScore);
   }
-}
-
-function updateHiScore() {
-  hiScoreBoard.innerText = hiScore.toString();
 }
 
 function updateLives() {
   livesCounter.innerText = lives.toString();
+}
+
+function updateLevel() {
+  levelCounter.innerText = level.toString();
 }
 
 function gameOver() {
@@ -235,9 +243,13 @@ function gameOver() {
 function gameWon() {
   clearInterval(gameInterval);
   levelUp();
+  updateLevel();
   startButton.style.opacity = 0.8;
   startButton.style.backgroundColor = 'blue';
   startButton.innerText = `Get Ready for level ${level}!`;
+  setTimeout(function () {
+    startGame();
+  }, 2500);
 }
 
 function checkGameOver() {
@@ -300,7 +312,6 @@ function shootBullet(position) {
 function levelUp() {
   level++;
   levelInterval -= 50;
-  startGame();
 }
 
 function checkWin() {
@@ -321,24 +332,85 @@ function clearAliens() {
   aliens = [];
 }
 
+function createSaucer() {
+  console.log('Creating saucer');
+  saucer = {
+    x: numColumns - 1,
+    y: 0,
+    alive: true,
+  };
+}
+
+function moveSaucer() {
+  if (saucer === null && aliens.every((alien) => alien.y > 0)) {
+    console.log('saucer is null');
+    createSaucer();
+  } else {
+    let saucerCell = gameGrid.rows[saucer.y].cells[saucer.x];
+    if (saucerCell) {
+      saucerCell.classList.remove('saucer');
+    }
+    if (saucer.x > 0) {
+      saucer.x -= 1;
+      saucerCell = gameGrid.rows[saucer.y].cells[saucer.x];
+      saucerCell.classList.add('saucer');
+      saucerMovementSound.play();
+    } else {
+      saucer = null;
+    }
+  }
+}
+
+function checkSaucerCollision() {
+  console.log('checkSaucerCollision');
+  console.log(saucer);
+  if (saucer !== null) {
+    for (let i = bullets.length - 1; i >= 0; i--) {
+      const bullet = bullets[i];
+      if (saucer.alive && bullet.alive) {
+        if (saucer.x === bullet.x && saucer.y === bullet.y) {
+          saucer.alive = false;
+          bullet.alive = false;
+          saucerDeathSound.play();
+
+          // Remove the saucer class when a collision occurs
+          const saucerCell = gameGrid.rows[saucer.y].cells[saucer.x];
+          if (saucerCell.classList.contains('saucer')) {
+            saucerCell.classList.remove('saucer');
+          }
+
+          // Increase the score when the saucer is shot down
+          score += 1000;
+          updateScore(score);
+          saucer = null;
+        }
+      }
+    }
+  }
+}
+
+// actual game invocation and updating happens here below
 async function updateGame() {
   await moveAliens();
   // await sleep(50);
   checkCollisions();
   moveBullets();
+  moveSaucer();
+  checkSaucerCollision();
   checkCollisions();
   updateScore();
   updateLives();
   checkGameOver();
-  checkWin(); // Add this line to check for the win condition
+  checkWin();
 }
 
 function startGame() {
   startButton.style.opacity = 0;
-  clearAliens(); // Add this line to clear aliens from the previous game
+  clearAliens();
   bullets = [];
   createAliens();
   updatePlayerPosition();
+  updateLevel();
   gameInterval = setInterval(updateGame, levelInterval);
 }
 
