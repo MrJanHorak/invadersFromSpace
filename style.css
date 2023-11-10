@@ -26,6 +26,9 @@ body {
   background-image: url(/assets/images/mysterya.ico);
   background-repeat: no-repeat;
   background-size: 2.3vw 2.3vw;
+  filter: invert(40%) sepia(70%) saturate(60%) hue-rotate(50deg)
+    brightness(100%) contrast(100%);
+  fill: red;
 }
 
 .bullet {
@@ -65,7 +68,7 @@ body {
 }
 
 #start {
-  background-color:rgba(175, 34, 34, 0.4);
+  background-color: rgba(175, 34, 34, 0.4);
   border: none;
   color: rgb(255, 255, 0);
   padding: 9px 34px;
@@ -79,7 +82,6 @@ body {
 }
 #start:hover {
   background-color: rgba(34, 175, 36, 0.4);
-
 }
 
 #info-container {

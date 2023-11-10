@@ -31,11 +31,13 @@ let isShooting = false;
 let levelInterval = 800;
 let level = 1;
 let saucer = null;
+let isGameOver = false;
 
 // event listeners
 startButton.addEventListener('click', startGame);
 
 document.addEventListener('keydown', (event) => {
+  if (isGameOver) return;
   if (event.key === 'ArrowLeft' && playerPositionX > 0) {
     playerPositionX--;
   } else if (
@@ -156,11 +158,17 @@ function moveBullets() {
       bullets.splice(index, 1);
       return;
     }
-    const cell = gameGrid.rows[bullet.y].cells[bullet.x];
-    cell.classList.remove('bullet');
+    const cell = gameGrid.rows[bullet.y]?.cells[bullet.x];
+    if (cell) {
+      cell.classList.remove('bullet');
+    }
+
     if (bullet.y > 0) {
       bullet.y -= 1;
-      cell.classList.add('bullet');
+      const newCell = gameGrid.rows[bullet.y]?.cells[bullet.x];
+      if (newCell) {
+        newCell.classList.add('bullet');
+      }
     } else {
       bullet.alive = false;
     }
@@ -238,6 +246,7 @@ function gameOver() {
   level = 1;
   startButton.style.opacity = 1;
   startButton.innerText = 'Game over! \nPlay Again?';
+  isGameOver = true;
 }
 
 function gameWon() {
@@ -289,19 +298,25 @@ function shootBullet(position) {
       return;
     }
 
+    // Check if the bullet has reached the top of the grid
+    if (bullet.y < 0) {
+      bullet.alive = false;
+    }
+
     // Get the cell based on the bullet's current position
-    const cell = gameGrid.rows[bullet.y].cells[bullet.x];
+    const cell = gameGrid.rows[bullet.y]?.cells[bullet.x];
 
     // Check if the cell exists and contains the "bullet" class
     if (cell && cell.classList.contains('bullet')) {
       cell.classList.remove('bullet');
     }
 
-    bullet.y -= 1; // Move the bullet up
+    // Move the bullet up
+    bullet.y -= 1;
 
     // Check if the bullet is still alive (it might have been destroyed while moving)
     if (bullet.alive) {
-      const newCell = gameGrid.rows[bullet.y].cells[bullet.x];
+      const newCell = gameGrid.rows[bullet.y]?.cells[bullet.x];
       if (newCell) {
         newCell.classList.add('bullet');
       }
@@ -333,27 +348,26 @@ function clearAliens() {
 }
 
 function createSaucer() {
-  console.log('Creating saucer');
+  const randomX = Math.floor(Math.random() * numColumns);
   saucer = {
-    x: numColumns - 1,
+    x: randomX,
     y: 0,
     alive: true,
   };
 }
 
-function moveSaucer() {
-  if (saucer === null && aliens.every((alien) => alien.y > 0)) {
-    console.log('saucer is null');
+async function moveSaucer() {
+  if (saucer === null && Math.random() < 0.02) {
     createSaucer();
-  } else {
+  } else if (saucer !== null) {
     let saucerCell = gameGrid.rows[saucer.y].cells[saucer.x];
     if (saucerCell) {
       saucerCell.classList.remove('saucer');
     }
     if (saucer.x > 0) {
       saucer.x -= 1;
-      saucerCell = gameGrid.rows[saucer.y].cells[saucer.x];
-      saucerCell.classList.add('saucer');
+      saucerCell = gameGrid.rows[saucer.y]?.cells[saucer.x];
+      saucerCell?.classList.add('saucer');
       saucerMovementSound.play();
     } else {
       saucer = null;
@@ -362,20 +376,19 @@ function moveSaucer() {
 }
 
 function checkSaucerCollision() {
-  console.log('checkSaucerCollision');
-  console.log(saucer);
+
   if (saucer !== null) {
     for (let i = bullets.length - 1; i >= 0; i--) {
       const bullet = bullets[i];
-      if (saucer.alive && bullet.alive) {
+      if (bullet && saucer.alive && bullet.alive) {
         if (saucer.x === bullet.x && saucer.y === bullet.y) {
           saucer.alive = false;
           bullet.alive = false;
           saucerDeathSound.play();
 
           // Remove the saucer class when a collision occurs
-          const saucerCell = gameGrid.rows[saucer.y].cells[saucer.x];
-          if (saucerCell.classList.contains('saucer')) {
+          const saucerCell = gameGrid.rows[saucer.y]?.cells[saucer.x];
+          if (saucerCell && saucerCell.classList.contains('saucer')) {
             saucerCell.classList.remove('saucer');
           }
 
@@ -391,6 +404,7 @@ function checkSaucerCollision() {
 
 // actual game invocation and updating happens here below
 async function updateGame() {
+  if (isGameOver) return;
   await moveAliens();
   // await sleep(50);
   checkCollisions();
@@ -405,6 +419,7 @@ async function updateGame() {
 }
 
 function startGame() {
+  isGameOver = false;
   startButton.style.opacity = 0;
   clearAliens();
   bullets = [];
