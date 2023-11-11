@@ -211,6 +211,38 @@ function checkCollisions() {
   }
 }
 
+function checkPlayerCollision() {
+  const playerCell = gameGrid.rows[playerPositionY].cells[playerPositionX];
+
+  // Check if the player collides with any alive alien
+  const collidedAlien = aliens.find((alien) => {
+    return (
+      alien.alive && alien.x === playerPositionX && alien.y === playerPositionY
+    );
+  });
+
+  if (collidedAlien) {
+    // Player collided with an alien
+    playerHit();
+  }
+}
+
+function playerHit() {
+  // Player hit logic
+  lives--;
+
+  if (lives <= 0) {
+    // Game over logic
+    gameOver();
+  } else {
+    // Reset player to the bottom
+    playerPositionY = numRows - 1;
+    playerPositionX = Math.floor(numColumns / 2);
+    updatePlayerPosition();
+    updateLives();
+  }
+}
+
 function updateHiScore() {
   hiScoreBoard.innerText = hiScore.toString();
 }
@@ -376,7 +408,6 @@ async function moveSaucer() {
 }
 
 function checkSaucerCollision() {
-
   if (saucer !== null) {
     for (let i = bullets.length - 1; i >= 0; i--) {
       const bullet = bullets[i];
@@ -406,6 +437,7 @@ function checkSaucerCollision() {
 async function updateGame() {
   if (isGameOver) return;
   await moveAliens();
+  checkPlayerCollision();
   // await sleep(50);
   checkCollisions();
   moveBullets();
@@ -422,7 +454,11 @@ function startGame() {
   isGameOver = false;
   startButton.style.opacity = 0;
   clearAliens();
+  lives = 3;
   bullets = [];
+  playerPosition = { row: numRows - 1, col: Math.floor(numColumns / 2) };
+  playerPositionX = Math.floor(numColumns / 2);
+  playerPositionY = numRows - 1;
   createAliens();
   updatePlayerPosition();
   updateLevel();
