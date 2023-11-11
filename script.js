@@ -348,9 +348,9 @@ function clearAliens() {
 }
 
 function createSaucer() {
-  const randomX = Math.floor(Math.random() * numColumns);
+  // const randomX = Math.floor(Math.random() * numColumns);
   saucer = {
-    x: randomX,
+    x: 30,
     y: 0,
     alive: true,
   };
