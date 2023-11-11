@@ -32,6 +32,7 @@ let levelInterval = 800;
 let level = 1;
 let saucer = null;
 let isGameOver = false;
+let lastLifeScore = 0;
 
 // event listeners
 startButton.addEventListener('click', startGame);
@@ -243,6 +244,16 @@ function playerHit() {
   }
 }
 
+function addLifeIfNeeded() {
+  const scoreThreshold = 10000;
+  console.log(score, lastLifeScore, scoreThreshold);
+  if (score >= lastLifeScore + scoreThreshold) {
+    lives++;
+    lastLifeScore = score;
+    updateLives();
+  }
+}
+
 function updateHiScore() {
   hiScoreBoard.innerText = hiScore.toString();
 }
@@ -301,6 +312,10 @@ function checkGameOver() {
       bullets = [];
       score = 0;
       lives = 3;
+      lastLifeScore = 0;
+      playerPosition = { row: numRows - 1, col: Math.floor(numColumns / 2) };
+      playerPositionX = Math.floor(numColumns / 2);
+      playerPositionY = numRows - 1;
     }
   });
 }
@@ -446,6 +461,7 @@ async function updateGame() {
   checkCollisions();
   updateScore();
   updateLives();
+  addLifeIfNeeded();
   checkGameOver();
   checkWin();
 }
@@ -454,11 +470,8 @@ function startGame() {
   isGameOver = false;
   startButton.style.opacity = 0;
   clearAliens();
-  lives = 3;
+
   bullets = [];
-  playerPosition = { row: numRows - 1, col: Math.floor(numColumns / 2) };
-  playerPositionX = Math.floor(numColumns / 2);
-  playerPositionY = numRows - 1;
   createAliens();
   updatePlayerPosition();
   updateLevel();
