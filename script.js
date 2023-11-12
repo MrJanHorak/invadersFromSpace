@@ -396,8 +396,13 @@ function shootAlienBullet(positionX, positionY) {
     // Check if the bullet is still alive (it might have been destroyed while moving)
     if (bullet.alive && bullet.y < numRows + 1) {
       const newCell = gameGrid.rows[bullet.y]?.cells[bullet.x];
-      if (newCell) {
+      if (newCell && !newCell.classList.contains('player')) {
         newCell.classList.add('alien-bullet');
+      } else if (newCell && newCell.classList.contains('player')) {
+        bullet.alive = false;
+        isAlienShooting = false;
+        newCell.classList.remove('alien-bullet');
+        playerHit();
       }
     } else if (bullet.y >= numRows + 1 && bullet.alive) {
       bullet.alive = false;
@@ -413,20 +418,6 @@ function alienShoot() {
     const randomIndex = Math.floor(Math.random() * shootingAliens.length);
     const randomAlien = shootingAliens[randomIndex];
     shootAlienBullet(randomAlien.x, randomAlien.y);
-  }
-}
-
-function checkPlayerAlienBulletCollision() {
-  for (let i = 0; i < alienBullets.length; i++) {
-    const bullet = alienBullets[i];
-    if (!bullet.alive) continue;
-
-    if (bullet.y === playerPositionY && bullet.x === playerPositionX) {
-      bullet.alive = false;
-      isAlienShooting = false;
-      // Handle alien's bullet hitting the player
-      playerHitByAlien();
-    }
   }
 }
 
@@ -528,7 +519,6 @@ async function updateGame() {
   moveSaucer();
   checkSaucerCollision();
   if (!isAlienShooting) alienShoot();
-  checkPlayerAlienBulletCollision();
   checkCollisions();
   updateScore();
   updateLives();
