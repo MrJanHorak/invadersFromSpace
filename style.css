@@ -36,6 +36,12 @@ body {
   background-size: 2.3vw 2.3vw;
   background-repeat: no-repeat;
 }
+.alien-bullet {
+  background-image: url(/assets/images/bullet.ico);
+  background-size: 2.3vw 2.3vw;
+  background-repeat: no-repeat;
+  filter: hue-rotate(-80deg);
+}
 
 .info-container {
   display: flex;

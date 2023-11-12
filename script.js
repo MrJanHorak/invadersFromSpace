@@ -27,7 +27,9 @@ let hiScore = 0;
 let lives = 3;
 let aliens = [];
 let bullets = [];
-let isShooting = false;
+let alienBullets = [];
+let isPlayerShooting = false;
+let isAlienShooting = false;
 let levelInterval = 800;
 let level = 1;
 let saucer = null;
@@ -46,8 +48,8 @@ document.addEventListener('keydown', (event) => {
     playerPositionX < gameGrid.rows[playerPositionY].cells.length - 1
   ) {
     playerPositionX++;
-  } else if (event.key === ' ' && !isShooting) {
-    shootBullet(playerPositionX);
+  } else if (event.key === ' ' && !isPlayerShooting) {
+    shootBullet(playerPositionX, playerPositionY);
   } else if (event.key === 'ArrowUp' && playerPositionY > 0) {
     playerPositionY--;
   } else if (
@@ -98,7 +100,7 @@ async function moveAliens() {
   }
 
   if (aliens.every((alien) => alien.alive === false)) {
-    clearInterval(gameInterval); // Game over when aliens reach the bottom
+    clearInterval(gameInterval); // Game over when aliens killed
     gameWon();
     return;
   }
@@ -246,7 +248,7 @@ function playerHit() {
 
 function addLifeIfNeeded() {
   const scoreThreshold = 10000;
-  console.log(score, lastLifeScore, scoreThreshold);
+
   if (score >= lastLifeScore + scoreThreshold) {
     lives++;
     lastLifeScore = score;
@@ -331,23 +333,19 @@ function updatePlayerPosition() {
   gameGrid.rows[playerPositionY].cells[playerPositionX].classList.add('player');
 }
 
-function shootBullet(position) {
-  shootBulletSound.play();
-  if (isShooting) return;
+function shootBullet(positionX, positionY) {
+  if (isPlayerShooting) return;
 
-  const bullet = { x: position, y: playerPositionY - 1, alive: true };
+  shootBulletSound.play();
+
+  const bullet = { x: positionX, y: positionY, alive: true };
   bullets.push(bullet);
 
   const bulletInterval = setInterval(() => {
     if (!bullet.alive) {
-      isShooting = false;
+      isPlayerShooting = false;
       clearInterval(bulletInterval);
       return;
-    }
-
-    // Check if the bullet has reached the top of the grid
-    if (bullet.y < 0) {
-      bullet.alive = false;
     }
 
     // Get the cell based on the bullet's current position
@@ -358,8 +356,7 @@ function shootBullet(position) {
       cell.classList.remove('bullet');
     }
 
-    // Move the bullet up
-    bullet.y -= 1;
+    bullet.y -= 1; // Move the bullet up for player, down for alien
 
     // Check if the bullet is still alive (it might have been destroyed while moving)
     if (bullet.alive) {
@@ -369,6 +366,80 @@ function shootBullet(position) {
       }
     }
   }, 200);
+}
+
+function shootAlienBullet(positionX, positionY) {
+  if (isAlienShooting) return;
+
+  shootBulletSound.play();
+  const bullet = { x: positionX, y: positionY, alive: true };
+  alienBullets.push(bullet);
+  isAlienShooting = true;
+
+  const alienBulletInterval = setInterval(() => {
+    if (!bullet.alive) {
+      isAlienShooting = false;
+      clearInterval(alienBulletInterval);
+      return;
+    }
+
+    // Get the cell based on the bullet's current position
+    const cell = gameGrid.rows[bullet.y]?.cells[bullet.x];
+
+    // Check if the cell exists and contains the "bullet" class
+    if (cell && cell.classList.contains('alien-bullet')) {
+      cell.classList.remove('alien-bullet');
+    }
+
+    bullet.y += 1; // Move the bullet up for player, down for alien
+
+    // Check if the bullet is still alive (it might have been destroyed while moving)
+    if (bullet.alive && bullet.y < numRows + 1) {
+      const newCell = gameGrid.rows[bullet.y]?.cells[bullet.x];
+      if (newCell) {
+        newCell.classList.add('alien-bullet');
+      }
+    } else if (bullet.y >= numRows + 1 && bullet.alive) {
+      bullet.alive = false;
+      isAlienShooting = false;
+      newCell.classList.remove('alien-bullet');
+    }
+  }, 200);
+}
+
+function alienShoot() {
+  const shootingAliens = aliens.filter((alien) => alien.alive);
+  if (shootingAliens.length > 0) {
+    const randomIndex = Math.floor(Math.random() * shootingAliens.length);
+    const randomAlien = shootingAliens[randomIndex];
+    shootAlienBullet(randomAlien.x, randomAlien.y);
+  }
+}
+
+function checkPlayerAlienBulletCollision() {
+  for (let i = 0; i < alienBullets.length; i++) {
+    const bullet = alienBullets[i];
+    if (!bullet.alive) continue;
+
+    if (bullet.y === playerPositionY && bullet.x === playerPositionX) {
+      bullet.alive = false;
+      isAlienShooting = false;
+      // Handle alien's bullet hitting the player
+      playerHitByAlien();
+    }
+  }
+}
+
+function playerHit() {
+  lives--;
+  updateLives();
+  // Reset player position to default
+  playerPositionX = Math.floor(numColumns / 2);
+  playerPositionY = numRows - 1;
+  updatePlayerPosition();
+  if (lives === 0) {
+    gameOver();
+  }
 }
 
 function levelUp() {
@@ -395,7 +466,6 @@ function clearAliens() {
 }
 
 function createSaucer() {
-  // const randomX = Math.floor(Math.random() * numColumns);
   saucer = {
     x: 30,
     y: 0,
@@ -453,11 +523,12 @@ async function updateGame() {
   if (isGameOver) return;
   await moveAliens();
   checkPlayerCollision();
-  // await sleep(50);
   checkCollisions();
   moveBullets();
   moveSaucer();
   checkSaucerCollision();
+  if (!isAlienShooting) alienShoot();
+  checkPlayerAlienBulletCollision();
   checkCollisions();
   updateScore();
   updateLives();
@@ -470,7 +541,6 @@ function startGame() {
   isGameOver = false;
   startButton.style.opacity = 0;
   clearAliens();
-
   bullets = [];
   createAliens();
   updatePlayerPosition();
