@@ -155,65 +155,6 @@ async function moveAliens() {
   });
 }
 
-function moveBullets() {
-  bullets.forEach((bullet, index) => {
-    if (bullet.alive === false) {
-      bullets.splice(index, 1);
-      return;
-    }
-    const cell = gameGrid.rows[bullet.y]?.cells[bullet.x];
-    if (cell) {
-      cell.classList.remove('bullet');
-    }
-
-    if (bullet.y > 0) {
-      bullet.y -= 1;
-      const newCell = gameGrid.rows[bullet.y]?.cells[bullet.x];
-      if (newCell) {
-        newCell.classList.add('bullet');
-      }
-    } else {
-      bullet.alive = false;
-    }
-  });
-  checkCollisions();
-}
-
-function checkCollisions() {
-  for (let i = bullets.length - 1; i >= 0; i--) {
-    const bullet = bullets[i];
-    for (let j = aliens.length - 1; j >= 0; j--) {
-      const alien = aliens[j];
-      if (alien.alive && bullet.alive) {
-        if (alien.x === bullet.x && alien.y === bullet.y) {
-          alien.alive = false;
-          bullet.alive = false;
-
-          // Remove the classes and green color when a collision occurs
-          const alienCell = gameGrid.rows[alien.y].cells[alien.x];
-          if (alienCell.classList.contains('alien')) {
-            alienCell.classList.remove('alien');
-          }
-
-          const bulletCell = gameGrid.rows[bullet.y].cells[bullet.x];
-          if (bulletCell.classList.contains('bullet')) {
-            bulletCell.classList.remove('bullet');
-          }
-
-          score += 10 * scoreMultiplier[alien.y];
-          updateScore(score);
-          alienDeathSound.play();
-        }
-      }
-    }
-
-    // Remove the bullet here for any missed collisions
-    if (!bullet.alive) {
-      bullets.splice(i, 1);
-    }
-  }
-}
-
 function checkPlayerCollision() {
   const playerCell = gameGrid.rows[playerPositionY].cells[playerPositionX];
 
@@ -361,8 +302,39 @@ function shootBullet(positionX, positionY) {
     // Check if the bullet is still alive (it might have been destroyed while moving)
     if (bullet.alive) {
       const newCell = gameGrid.rows[bullet.y]?.cells[bullet.x];
-      if (newCell) {
+      if (
+        newCell &&
+        !newCell.classList.contains('alien') &&
+        !newCell.classList.contains('saucer')
+      ) {
         newCell.classList.add('bullet');
+      } else if (
+        newCell &&
+        newCell.classList.contains('alien') &&
+        !newCell.classList.contains('saucer')
+      ) {
+        bullet.alive = false;
+        newCell.classList.remove('bullet');
+        newCell.classList.remove('alien');
+        aliens.forEach((alien) => {
+          if (alien.x === bullet.x && alien.y === bullet.y) {
+            alien.alive = false;
+          }
+        });
+        score += 10 * scoreMultiplier[bullet.y];
+        updateScore(score);
+        clearInterval(bulletInterval);
+        alienDeathSound.play();
+      } else if (newCell && newCell.classList.contains('saucer')) {
+        bullet.alive = false;
+        newCell.classList.remove('bullet');
+        newCell.classList.remove('saucer');
+        saucer.alive = false;
+        saucer = null;
+        score += 1000;
+        updateScore(score);
+        clearInterval(bulletInterval);
+        saucerDeathSound.play();
       }
     }
   }, 200);
@@ -391,7 +363,7 @@ function shootAlienBullet(positionX, positionY) {
       cell.classList.remove('alien-bullet');
     }
 
-    bullet.y += 1; // Move the bullet up for player, down for alien
+    bullet.y += 1; // Move the bullet down for alien
 
     // Check if the bullet is still alive (it might have been destroyed while moving)
     if (bullet.alive && bullet.y < numRows + 1) {
@@ -438,12 +410,6 @@ function levelUp() {
   levelInterval -= 50;
 }
 
-function checkWin() {
-  if (aliens.every((alien) => alien.alive === false)) {
-    gameWon();
-  }
-}
-
 function clearAliens() {
   aliens.forEach((alien) => {
     if (alien.alive) {
@@ -464,7 +430,7 @@ function createSaucer() {
   };
 }
 
-async function moveSaucer() {
+function moveSaucer() {
   if (saucer === null && Math.random() < 0.02) {
     createSaucer();
   } else if (saucer !== null) {
@@ -475,36 +441,32 @@ async function moveSaucer() {
     if (saucer.x > 0) {
       saucer.x -= 1;
       saucerCell = gameGrid.rows[saucer.y]?.cells[saucer.x];
-      saucerCell?.classList.add('saucer');
-      saucerMovementSound.play();
+      if (
+        !saucerCell.classList.contains('saucer') &&
+        !saucerCell.classList.contains('bullet')
+      ) {
+        saucerCell.classList.add('saucer');
+        saucerMovementSound.play();
+      } else if (saucerCell.classList.contains('bullet')) {
+        saucer.alive = false;
+        saucerCell.classList.remove('saucer');
+        saucerCell.classList.remove('bullet');
+        bullets.forEach((bullet) => {
+          if (bullet.x === saucer.x && bullet.y === saucer.y) {
+            bullet.alive = false;
+          }
+        });
+        score += 1000;
+        updateScore(score);
+        saucer = null;
+        saucerDeathSound.play();
+      }
+    } else if (saucer.x === 0) {
+      saucer.alive = false;
+      saucerCell.classList.remove('saucer');
+      saucer = null;
     } else {
       saucer = null;
-    }
-  }
-}
-
-function checkSaucerCollision() {
-  if (saucer !== null) {
-    for (let i = bullets.length - 1; i >= 0; i--) {
-      const bullet = bullets[i];
-      if (bullet && saucer.alive && bullet.alive) {
-        if (saucer.x === bullet.x && saucer.y === bullet.y) {
-          saucer.alive = false;
-          bullet.alive = false;
-          saucerDeathSound.play();
-
-          // Remove the saucer class when a collision occurs
-          const saucerCell = gameGrid.rows[saucer.y]?.cells[saucer.x];
-          if (saucerCell && saucerCell.classList.contains('saucer')) {
-            saucerCell.classList.remove('saucer');
-          }
-
-          // Increase the score when the saucer is shot down
-          score += 1000;
-          updateScore(score);
-          saucer = null;
-        }
-      }
     }
   }
 }
@@ -514,17 +476,13 @@ async function updateGame() {
   if (isGameOver) return;
   await moveAliens();
   checkPlayerCollision();
-  checkCollisions();
-  moveBullets();
   moveSaucer();
-  checkSaucerCollision();
-  if (!isAlienShooting) alienShoot();
-  checkCollisions();
+  // checkSaucerCollision();
+  if (!isAlienShooting && level > 3) alienShoot();
   updateScore();
   updateLives();
   addLifeIfNeeded();
   checkGameOver();
-  checkWin();
 }
 
 function startGame() {
