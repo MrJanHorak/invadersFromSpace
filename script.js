@@ -393,7 +393,7 @@ function shootAlienBullet(positionX, positionY) {
     bullet.y += 1; // Move the bullet down for alien
 
     // Check if the bullet is still alive (it might have been destroyed while moving)
-    if (bullet.alive && bullet.y < numRows + 1) {
+    if (bullet.alive && bullet.y < numRows ) {
       const newCell = gameGrid.rows[bullet.y]?.cells[bullet.x];
       if (newCell && !newCell.classList.contains('player')) {
         newCell.classList.add('alien-bullet');
@@ -403,10 +403,9 @@ function shootAlienBullet(positionX, positionY) {
         newCell.classList.remove('alien-bullet');
         playerHit();
       }
-    } else if (bullet.y >= numRows + 1 && bullet.alive) {
+    } else if (bullet.y >= numRows && bullet.alive) {
       bullet.alive = false;
       isAlienShooting = false;
-      newCell.classList.remove('alien-bullet');
     }
   }, 200);
 }
@@ -510,7 +509,6 @@ function updateGame() {
       5 -
       level * 2 +
       (aliens.length - aliens.filter((alien) => alien.alive).length) * 2;
-    console.log(timeout);
     setTimeout(() => alienShoot(), timeout);
   }
   updateScore();
