@@ -41,19 +41,22 @@ startButton.addEventListener('click', startGame);
 
 document.addEventListener('keydown', (event) => {
   if (isGameOver) return;
-  if (event.key === 'ArrowLeft' && playerPositionX > 0) {
+  if ((event.key === 'ArrowLeft' || event.key === 'a') && playerPositionX > 0) {
     playerPositionX--;
   } else if (
-    event.key === 'ArrowRight' &&
+    (event.key === 'ArrowRight' || event.key === 'd') &&
     playerPositionX < gameGrid.rows[playerPositionY].cells.length - 1
   ) {
     playerPositionX++;
   } else if (event.key === ' ' && !isPlayerShooting) {
     shootBullet(playerPositionX, playerPositionY);
-  } else if (event.key === 'ArrowUp' && playerPositionY > 0) {
+  } else if (
+    (event.key === 'ArrowUp' || event.key === 'w') &&
+    playerPositionY > 0
+  ) {
     playerPositionY--;
   } else if (
-    event.key === 'ArrowDown' &&
+    (event.key === 'ArrowDown' || event.key === 's') &&
     playerPositionY < gameGrid.rows.length - 1
   ) {
     playerPositionY++;
@@ -478,12 +481,13 @@ function updateGame() {
   moveAliens();
   checkPlayerCollision();
   moveSaucer();
-  if (!isAlienShooting) {
+  if (!isAlienShooting && level > 2) {
+    // Set timeout for alien to shoot that increases with number of aliens killed and decreases as level increases
     const timeout =
       5 -
       level * 2 +
       (aliens.length - aliens.filter((alien) => alien.alive).length) * 2;
-    console.log(timeout)
+    console.log(timeout);
     setTimeout(() => alienShoot(), timeout);
   }
   updateScore();
