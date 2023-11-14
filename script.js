@@ -88,11 +88,12 @@ function createAliens() {
   }
 }
 
+//functions
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function moveAliens() {
+function moveAliens() {
   if (aliens.some((alien) => alien.y === numRows - 1)) {
     clearInterval(gameInterval); // Game over when aliens reach the bottom
     gameOver();
@@ -472,13 +473,19 @@ function moveSaucer() {
 }
 
 // actual game invocation and updating happens here below
-async function updateGame() {
+function updateGame() {
   if (isGameOver) return;
-  await moveAliens();
+  moveAliens();
   checkPlayerCollision();
   moveSaucer();
-  // checkSaucerCollision();
-  if (!isAlienShooting && level > 3) alienShoot();
+  if (!isAlienShooting) {
+    const timeout =
+      5 -
+      level * 2 +
+      (aliens.length - aliens.filter((alien) => alien.alive).length) * 2;
+    console.log(timeout)
+    setTimeout(() => alienShoot(), timeout);
+  }
   updateScore();
   updateLives();
   addLifeIfNeeded();
