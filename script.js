@@ -7,6 +7,9 @@ const player = document.querySelector('#player');
 const alienCell = document.querySelector('#alien');
 const gameGrid = document.querySelector('#game-grid');
 const startButton = document.querySelector('#start');
+const rulesModal = document.getElementById('rulesModal');
+const rulesButton = document.getElementById('rulesButton');
+const closeModal = document.getElementById('closeModal');
 
 // variables
 const numRows = 15;
@@ -38,6 +41,25 @@ let lastLifeScore = 0;
 
 // event listeners
 startButton.addEventListener('click', startGame);
+rulesButton.addEventListener('click', () => {
+  rulesModal.style.display = 'block';
+});
+
+closeModal.addEventListener('click', () => {
+  rulesModal.style.display = 'none';
+});
+
+window.addEventListener('click', (event) => {
+  if (event.target === rulesModal) {
+    rulesModal.style.display = 'none';
+  }
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && rulesModal.style.display === 'block') {
+    rulesModal.style.display = 'none';
+  }
+});
 
 document.addEventListener('keydown', (event) => {
   if (isGameOver) return;
@@ -236,6 +258,7 @@ function gameOver() {
   level = 1;
   startButton.style.opacity = 1;
   startButton.innerText = 'Game over! \nPlay Again?';
+  rulesButton.style.opacity = 1;
   isGameOver = true;
 }
 
@@ -499,6 +522,7 @@ function updateGame() {
 function startGame() {
   isGameOver = false;
   startButton.style.opacity = 0;
+  rulesButton.style.opacity = 0;
   clearAliens();
   bullets = [];
   createAliens();
