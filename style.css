@@ -20,27 +20,30 @@ body {
   background-image: url(/assets/images/saucer1a.ico);
   background-repeat: no-repeat;
   background-size: 2.3vw 2.3vw;
+  filter: invert(20%) sepia(100%) brightness(90%) saturate(220%) hue-rotate(-100deg);
 }
 
 .alien2 {
   background-image: url(/assets/images/saucer2a.ico);
   background-repeat: no-repeat;
   background-size: 2.3vw 2.3vw;
+  filter: invert(20%) sepia(100%) brightness(90%) saturate(220%) hue-rotate(-10deg);
 }
 
 .alien3 {
   background-image: url(/assets/images/saucer3a.ico);
   background-repeat: no-repeat;
   background-size: 2.3vw 2.3vw;
+  filter: invert(20%) sepia(100%) brightness(90%) saturate(420%) hue-rotate(-270deg);
 }
 
 .saucer {
   background-image: url(/assets/images/mysterya.ico);
   background-repeat: no-repeat;
   background-size: 2.3vw 2.3vw;
-  filter: invert(40%) sepia(70%) saturate(60%) hue-rotate(50deg)
-    brightness(100%) contrast(100%);
-  fill: red;
+  filter: invert(20%) sepia(100%) saturate(580%) hue-rotate(-390deg)
+    brightness(100%) ;
+  /* fill: red; */
 }
 
 .bullet {
