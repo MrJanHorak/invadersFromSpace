@@ -101,13 +101,22 @@ for (let i = 0; i < numRows; i++) {
 
 // functions
 function createAliens() {
-  for (let j = 0; j <= 5; j++) {
+  for (let j = 0; j < 5; j++) {
     for (let i = 0; i <= numAliens * 2; i = i + 2) {
+      let varient;
+      if (j === 0) {
+        varient = 'alien1';
+      } else if (j > 0 && j <= 2) {
+        varient = 'alien2';
+      } else if (j > 2 && j <= 4) {
+        varient = 'alien3';
+      }
       aliens.push({
         x: i,
         y: j,
         alive: true,
         direction: 'right',
+        varient: varient,
       });
     }
   }
@@ -137,7 +146,10 @@ function moveAliens() {
   aliensToMove.forEach((alien) => {
     const cell = gameGrid.rows[alien.y].cells[alien.x];
     if (cell) {
-      cell.classList.remove('alien');
+      cell.classList.remove.apply(
+        cell.classList,
+        Array.from(cell.classList).filter((v) => v.startsWith('alien'))
+      );
     }
   });
 
@@ -176,7 +188,7 @@ function moveAliens() {
   aliensToMove.forEach((alien) => {
     const cell = gameGrid.rows[alien.y].cells[alien.x];
     if (cell) {
-      cell.classList.add('alien');
+      cell.classList.add(alien.varient);
     }
   });
 }
@@ -327,22 +339,28 @@ function shootBullet(positionX, positionY) {
     bullet.y -= 1; // Move the bullet up for player, down for alien
 
     // Check if the bullet is still alive (it might have been destroyed while moving)
-    if (bullet.alive) {
+    if (bullet.alive && bullet.y >= 0) {
       const newCell = gameGrid.rows[bullet.y]?.cells[bullet.x];
+      const newCellClasslist = Array.from(newCell.classList).filter((v) =>
+        v.startsWith('alien')
+      );
       if (
         newCell &&
-        !newCell.classList.contains('alien') &&
+        !newCellClasslist.length > 0 &&
         !newCell.classList.contains('saucer')
       ) {
         newCell.classList.add('bullet');
       } else if (
         newCell &&
-        newCell.classList.contains('alien') &&
+        newCellClasslist.length > 0 &&
         !newCell.classList.contains('saucer')
       ) {
         bullet.alive = false;
         newCell.classList.remove('bullet');
-        newCell.classList.remove('alien');
+        newCell.classList.remove.apply(
+          newCell.classList,
+          Array.from(newCell.classList).filter((v) => v.startsWith('alien'))
+        );
         aliens.forEach((alien) => {
           if (alien.x === bullet.x && alien.y === bullet.y) {
             alien.alive = false;
@@ -363,6 +381,8 @@ function shootBullet(positionX, positionY) {
         clearInterval(bulletInterval);
         saucerDeathSound.play();
       }
+    } else if (bullet.y < 0 && bullet.alive) {
+      bullet.alive = false;
     }
   }, 200);
 }
@@ -386,21 +406,21 @@ function shootAlienBullet(positionX, positionY) {
     const cell = gameGrid.rows[bullet.y]?.cells[bullet.x];
 
     // Check if the cell exists and contains the "bullet" class
-    if (cell && cell.classList.contains('alien-bullet')) {
-      cell.classList.remove('alien-bullet');
+    if (cell && cell.classList.contains('bullet-alien')) {
+      cell.classList.remove('bullet-alien');
     }
 
     bullet.y += 1; // Move the bullet down for alien
 
     // Check if the bullet is still alive (it might have been destroyed while moving)
-    if (bullet.alive && bullet.y < numRows ) {
+    if (bullet.alive && bullet.y < numRows) {
       const newCell = gameGrid.rows[bullet.y]?.cells[bullet.x];
       if (newCell && !newCell.classList.contains('player')) {
-        newCell.classList.add('alien-bullet');
+        newCell.classList.add('bullet-alien');
       } else if (newCell && newCell.classList.contains('player')) {
         bullet.alive = false;
         isAlienShooting = false;
-        newCell.classList.remove('alien-bullet');
+        newCell.classList.remove('bullet-alien');
         playerHit();
       }
     } else if (bullet.y >= numRows && bullet.alive) {
@@ -440,8 +460,16 @@ function clearAliens() {
   aliens.forEach((alien) => {
     if (alien.alive) {
       const cell = gameGrid.rows[alien.y].cells[alien.x];
-      if (cell.classList.contains('alien')) {
-        cell.classList.remove('alien');
+      if (
+        cell.classList.contains.apply(
+          cell.classList,
+          Array.from(cell.classList).filter((v) => v.startsWith('alien'))
+        )
+      ) {
+        cell.classList.remove.apply(
+          cell.classList,
+          Array.from(cell.classList).filter((v) => v.startsWith('alien'))
+        );
       }
     }
   });

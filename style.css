@@ -16,8 +16,20 @@ body {
   background-size: 2.3vw 2.3vw;
 }
 
-.alien {
+.alien1 {
   background-image: url(/assets/images/saucer1a.ico);
+  background-repeat: no-repeat;
+  background-size: 2.3vw 2.3vw;
+}
+
+.alien2 {
+  background-image: url(/assets/images/saucer2a.ico);
+  background-repeat: no-repeat;
+  background-size: 2.3vw 2.3vw;
+}
+
+.alien3 {
+  background-image: url(/assets/images/saucer3a.ico);
   background-repeat: no-repeat;
   background-size: 2.3vw 2.3vw;
 }
