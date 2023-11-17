@@ -63,22 +63,25 @@ document.addEventListener('keydown', (event) => {
 
 document.addEventListener('keydown', (event) => {
   if (isGameOver) return;
-  if ((event.key === 'ArrowLeft' || event.key === 'a') && playerPositionX > 0) {
+  if (
+    (event.key === 'ArrowLeft' || event.key === 'a' || event.key === 'A') &&
+    playerPositionX > 0
+  ) {
     playerPositionX--;
   } else if (
-    (event.key === 'ArrowRight' || event.key === 'd') &&
+    (event.key === 'ArrowRight' || event.key === 'd' || event.key === 'D') &&
     playerPositionX < gameGrid.rows[playerPositionY].cells.length - 1
   ) {
     playerPositionX++;
   } else if (event.key === ' ' && !isPlayerShooting) {
     shootBullet(playerPositionX, playerPositionY);
   } else if (
-    (event.key === 'ArrowUp' || event.key === 'w') &&
+    (event.key === 'ArrowUp' || event.key === 'w' || event.key === 'W') &&
     playerPositionY > 0
   ) {
     playerPositionY--;
   } else if (
-    (event.key === 'ArrowDown' || event.key === 's') &&
+    (event.key === 'ArrowDown' || event.key === 's' || event.key === 'S') &&
     playerPositionY < gameGrid.rows.length - 1
   ) {
     playerPositionY++;
@@ -217,7 +220,7 @@ function checkPlayerCollision() {
 function playerHit() {
   // Player hit logic
   lives--;
-
+  saucerDeathSound.play();
   if (lives <= 0) {
     // Game over logic
     gameOver();
@@ -356,7 +359,7 @@ function shootBullet(positionX, positionY) {
       cell.classList.remove('bullet');
     }
 
-    bullet.y -= 1; // Move the bullet up for player, down for alien
+    bullet.y -= 1;
 
     // Check if the bullet is still alive (it might have been destroyed while moving)
     if (bullet.alive && bullet.y >= 0) {
@@ -428,7 +431,7 @@ function shootAlienBullet(positionX, positionY) {
       cell.classList.remove('bullet-alien');
     }
 
-    bullet.y += 1; // Move the bullet down for alien
+    bullet.y += 1; 
 
     // Check if the bullet is still alive (it might have been destroyed while moving)
     if (bullet.alive && bullet.y < numRows) {
@@ -459,6 +462,7 @@ function alienShoot() {
 
 function playerHit() {
   lives--;
+  saucerDeathSound.play();
   updateLives();
   // Reset player position to default
   playerPositionX = Math.floor(numColumns / 2);
