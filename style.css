@@ -169,6 +169,23 @@ body {
   top: 48%;
 }
 
+#moon-container{
+  height: 99vh;
+  width: 99vw;
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  overflow: hidden;
+}
+
+#moon {
+  overflow: hidden;
+  bottom: 0;
+  position: absolute;
+  width: 100%;
+  height: auto;
+}
+
 @keyframes pulse {
   0% {
     transform: scale(1);
