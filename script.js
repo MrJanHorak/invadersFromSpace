@@ -38,6 +38,7 @@ let level = 1;
 let saucer = null;
 let isGameOver = false;
 let lastLifeScore = 0;
+let isSoundOn = true;
 
 // event listeners
 startButton.addEventListener('click', startGame);
@@ -123,6 +124,19 @@ function createAliens() {
       });
     }
   }
+}
+
+function toggleSound() {
+  isSoundOn = !isSoundOn;
+
+  alienMovementSound.muted = !isSoundOn;
+  shootBulletSound.muted = !isSoundOn;
+  alienDeathSound.muted = !isSoundOn;
+  saucerDeathSound.muted = !isSoundOn;
+  saucerMovementSound.muted = !isSoundOn;
+
+  const soundButton = document.getElementById('soundButton');
+  soundButton.classList.toggle('muted', !isSoundOn);
 }
 
 function sleep(ms) {
@@ -431,7 +445,7 @@ function shootAlienBullet(positionX, positionY) {
       cell.classList.remove('bullet-alien');
     }
 
-    bullet.y += 1; 
+    bullet.y += 1;
 
     // Check if the bullet is still alive (it might have been destroyed while moving)
     if (bullet.alive && bullet.y < numRows) {
