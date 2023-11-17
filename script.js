@@ -122,25 +122,24 @@ function createAliens() {
   }
 }
 
-//functions
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function moveAliens() {
   if (aliens.some((alien) => alien.y === numRows - 1)) {
-    clearInterval(gameInterval); // Game over when aliens reach the bottom
+    clearInterval(gameInterval);
     gameOver();
     return;
   }
 
   if (aliens.every((alien) => alien.alive === false)) {
-    clearInterval(gameInterval); // Game over when aliens killed
+    clearInterval(gameInterval);
     gameWon();
     return;
   }
 
-  const aliensToMove = aliens.filter((alien) => alien.alive); // Only move alive aliens
+  const aliensToMove = aliens.filter((alien) => alien.alive);
 
   // Clear all aliens first
   aliensToMove.forEach((alien) => {
@@ -172,7 +171,13 @@ function moveAliens() {
       alienMovementSound.play();
     });
   } else if (
-    aliensToMove.some((alien) => alien.x !== 0 && alien.x !== numColumns - 1)
+    aliensToMove.some(
+      (alien) =>
+        ((alien.x >= 0 && alien.direction === 'right') ||
+          (alien.x !== 0 && alien.direction === 'left')) &&
+        ((alien.x !== numColumns - 1 && alien.direction === 'right') ||
+          (alien.x <= numColumns - 1 && alien.direction === 'left'))
+    )
   ) {
     // Move all aliens (left or right) once
     aliensToMove.forEach((alien) => {
@@ -388,15 +393,11 @@ function shootBullet(positionX, positionY) {
 }
 
 function shootAlienBullet(positionX, positionY) {
-  console.log('alien shooting')
   if (isAlienShooting) return;
-console.log('alien begins shooting')
   shootBulletSound.play();
   const bullet = { x: positionX, y: positionY, alive: true };
-  console.log('bullet', bullet)
   alienBullets.push(bullet);
   isAlienShooting = true;
-  console.log('isAlienShooting', isAlienShooting)
   const alienBulletInterval = setInterval(() => {
     if (!bullet.alive) {
       isAlienShooting = false;

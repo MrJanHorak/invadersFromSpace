@@ -20,21 +20,24 @@ body {
   background-image: url(/assets/images/saucer1a.ico);
   background-repeat: no-repeat;
   background-size: 2.3vw 2.3vw;
-  filter: invert(20%) sepia(100%) brightness(90%) saturate(220%) hue-rotate(-100deg);
+  filter: invert(20%) sepia(100%) brightness(90%) saturate(220%)
+    hue-rotate(-100deg);
 }
 
 .alien2 {
   background-image: url(/assets/images/saucer2a.ico);
   background-repeat: no-repeat;
   background-size: 2.3vw 2.3vw;
-  filter: invert(20%) sepia(100%) brightness(90%) saturate(220%) hue-rotate(-10deg);
+  filter: invert(20%) sepia(100%) brightness(90%) saturate(220%)
+    hue-rotate(-10deg);
 }
 
 .alien3 {
   background-image: url(/assets/images/saucer3a.ico);
   background-repeat: no-repeat;
   background-size: 2.3vw 2.3vw;
-  filter: invert(20%) sepia(100%) brightness(90%) saturate(420%) hue-rotate(-270deg);
+  filter: invert(20%) sepia(100%) brightness(90%) saturate(420%)
+    hue-rotate(-270deg);
 }
 
 .saucer {
@@ -42,7 +45,7 @@ body {
   background-repeat: no-repeat;
   background-size: 2.3vw 2.3vw;
   filter: invert(20%) sepia(100%) saturate(580%) hue-rotate(-390deg)
-    brightness(100%) ;
+    brightness(100%);
   /* fill: red; */
 }
 
@@ -62,12 +65,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(53, 52, 52, 0.4);
-  border: #560916 5px solid;
   padding: 8px;
   width: 290px;
-  border-color: #394d39 2 solid;
-  border-style: ridge solid;
 }
 
 .hidden {
@@ -166,10 +165,10 @@ body {
   z-index: 20;
   position: absolute;
   width: 98%;
-  top: 48%;
+  top: 40%;
 }
 
-#moon-container{
+#moon-container {
   height: 99vh;
   width: 99vw;
   position: absolute;
