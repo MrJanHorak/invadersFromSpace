@@ -273,6 +273,21 @@ function gameOver() {
   clearInterval(gameInterval);
   levelInterval = 800;
   level = 1;
+  lives = 3;
+  aliens.forEach((alien, index) => {
+    if (alien.alive) {
+      const cell = gameGrid.rows[alien.y].cells[alien.x];
+      if (cell) {
+        if (index < 12) {
+          cell.classList.add('alien-win1');
+        } else if (index >= 12 && index < 36) {
+          cell.classList.add('alien-win2');
+        } else if (index >= 36) {
+          cell.classList.add('alien-win3');
+        }
+      }
+    }
+  });
   startButton.style.opacity = 1;
   startButton.innerText = 'Game over! \nPlay Again?';
   rulesButton.style.opacity = 1;
