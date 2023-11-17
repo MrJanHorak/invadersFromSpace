@@ -384,17 +384,19 @@ function shootBullet(positionX, positionY) {
     } else if (bullet.y < 0 && bullet.alive) {
       bullet.alive = false;
     }
-  }, 200);
+  }, 250);
 }
 
 function shootAlienBullet(positionX, positionY) {
+  console.log('alien shooting')
   if (isAlienShooting) return;
-
+console.log('alien begins shooting')
   shootBulletSound.play();
   const bullet = { x: positionX, y: positionY, alive: true };
+  console.log('bullet', bullet)
   alienBullets.push(bullet);
   isAlienShooting = true;
-
+  console.log('isAlienShooting', isAlienShooting)
   const alienBulletInterval = setInterval(() => {
     if (!bullet.alive) {
       isAlienShooting = false;
